@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Biciklističke rute Novi Sad</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        /* Glavni stil sajta sa gradientom i Times New Roman fontom */
+        body {
+            margin: 0;
+            font-family: 'Times New Roman', serif;
+            background: linear-gradient(160deg, #87CEFA 0%, #FFC0CB 100%); /* plavo-bebi roze */
+            color: #fff;
+            text-align: center;
+        }
+
+        h1 {
+            padding: 20px;
+            margin: 0;
+            background: rgba(255, 255, 255, 0.4); /* providna bela */
+            border-radius: 15px;
+            font-size: 2em;
+            color: #104E8B; /* tamnoplava */
+            text-shadow: 1px 1px 2px #FFAFAF; /* blagi roze sjaj */
+        }
+
+        /* Mapa sa senkom i zaobljenim ivicama */
+        #map {
+            height: 70vh;
+            width: 90%;
+            margin: 20px auto;
+            border: 3px solid #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Kontrole sa providnom belom pozadinom i senkom */
+        #controls {
+            margin: 10px auto;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 15px;
+            width: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        #controls label, #controls select, #controls button {
+            display: block;
+            margin: 10px auto;
+            font-size: 16px;
+        }
+
+        #controls select {
+            padding: 8px;
+            width: 80%;
+            border-radius: 10px;
+            border: none;
+        }
+
+        #controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #87CEFA, #FFC0CB); /* plavo-roze gradient */
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #controls button:hover {
+            background: linear-gradient(45deg, #FFC0CB, #87CEFA); /* obrnut gradient na hover */
+        }
+    </style>
+</head>
+<body>
+<h1>Biciklističke rute u Novom Sadu</h1>
+<div id="map"></div>
+
+<div id="controls">
+    <label for="difficulty">Izaberi težinu rute:</label>
+    <select id="difficulty">
+        <option value="laka">laka</option>
+        <option value="srednja">srednja</option>
+        <option value="teska">teska</option>
+    </select>
+    <button onclick="updateLayer()">Prikaži rutu</button>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    var mapa = L.map('map').setView([45.25, 19.83], 12);
+
+    // OpenStreetMap podloga
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
+    }).addTo(mapa);
+
+    // DEM raster preko WMS sa providnošću 50%
+    var demLayer = L.tileLayer.wms("http://localhost:8080/geoserver/novi_sad/wms", {
+        layers: 'novi_sad:dem_novi_sad',
+        format: 'image/png',
+        transparent: true,
+        version: '1.1.0',
+        opacity: 0.5
+    }).addTo(mapa);
+
+    // Biciklističke rute WMS sloj
+    var ruteLayer = L.tileLayer.wms("http://localhost:8080/geoserver/novi_sad/wms", {
+        layers: 'novi_sad:biciklisticke_rute',
+        format: 'image/png',
+        transparent: true,
+        version: '1.1.0'
+    }).addTo(mapa);
+
+    // Funkcija za filter po težini
+    function updateLayer() {
+        var difficulty = document.getElementById("difficulty").value;
+
+        mapa.removeLayer(ruteLayer);
+
+        ruteLayer = L.tileLayer.wms("http://localhost:8080/geoserver/novi_sad/wms", {
+            layers: 'novi_sad:biciklisticke_rute',
+            format: 'image/png',
+            transparent: true,
+            version: '1.1.0',
+            CQL_FILTER: "tezina='" + difficulty + "'"
+        }).addTo(mapa);
+    }
+
+    // Tooltip klikom na rutu
+    mapa.on('click', function(e) {
+        var url = "http://localhost:8080/geoserver/novi_sad/wms?" +
+            "SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo" +
+            "&LAYERS=novi_sad:biciklisticke_rute&QUERY_LAYERS=novi_sad:biciklisticke_rute" +
+            "&STYLES=&BBOX=" + mapa.getBounds().toBBoxString() +
+            "&FEATURE_COUNT=5&HEIGHT=" + mapa.getSize().y +
+            "&WIDTH=" + mapa.getSize().x +
+            "&FORMAT=image/png&INFO_FORMAT=application/json" +
+            "&SRS=EPSG:4326&X=" + Math.floor(mapa.layerPointToContainerPoint(e.layerPoint).x) +
+            "&Y=" + Math.floor(mapa.layerPointToContainerPoint(e.layerPoint).y);
+
+        fetch(url)
+          .then(res => res.json())
+          .then(data => {
+              if(data.features && data.features.length > 0) {
+                  var tezina = data.features[0].properties.tezina;
+                  L.popup()
+                    .setLatLng(e.latlng)
+                    .setContent("Težina rute: " + tezina)
+                    .openOn(mapa);
+              }
+          });
+    });
+</script>
+</body>
+</html>

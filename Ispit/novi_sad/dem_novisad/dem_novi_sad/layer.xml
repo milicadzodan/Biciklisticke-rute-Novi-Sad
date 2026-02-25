@@ -1,0 +1,17 @@
+<layer>
+  <name>dem_novi_sad</name>
+  <id>LayerInfoImpl--25b211dd:19c953e8778:-7ff9</id>
+  <type>RASTER</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--570ae188:124761b8d78:-7fe2</id>
+  </defaultStyle>
+  <resource class="coverage">
+    <id>CoverageInfoImpl--25b211dd:19c953e8778:-7ffa</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2026-02-25 15:10:39.537 UTC</dateCreated>
+  <dateModified>2026-02-25 15:11:20.648 UTC</dateModified>
+</layer>

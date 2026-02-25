@@ -1,0 +1,24 @@
+<dataStore>
+  <id>DataStoreInfoImpl--25b211dd:19c953e8778:-7fe1</id>
+  <name>biciklisticke_rute</name>
+  <type>Shapefile</type>
+  <enabled>true</enabled>
+  <workspace>
+    <id>WorkspaceInfoImpl--25b211dd:19c953e8778:-7fff</id>
+  </workspace>
+  <connectionParameters>
+    <entry key="charset">ISO-8859-1</entry>
+    <entry key="filetype">shapefile</entry>
+    <entry key="create spatial index">true</entry>
+    <entry key="memory mapped buffer">false</entry>
+    <entry key="timezone">Europe/Prague</entry>
+    <entry key="enable spatial index">true</entry>
+    <entry key="namespace">novi_sad</entry>
+    <entry key="cache and reuse memory maps">true</entry>
+    <entry key="skipScan">true</entry>
+    <entry key="url">file://C:\Users\Brutal Beast\Documents\biciklisticke_rute.shp</entry>
+    <entry key="fstype">shape</entry>
+  </connectionParameters>
+  <__default>false</__default>
+  <dateCreated>2026-02-25 15:12:22.508 UTC</dateCreated>
+</dataStore>
